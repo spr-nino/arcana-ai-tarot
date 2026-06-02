@@ -148,6 +148,9 @@ const i18n = {
     studyCard: (name) => `${name}代表接下来需要被训练、整合或跨越的能力。`,
     adviceMore: "继续完成抽牌，命运结构会更完整。",
     adviceDone: "三张牌形成了过去、现在与趋势的连续结构。选择一个最小但诚实的行动。",
+    aiLoading: "AI 正在读取牌阵，请保持片刻安静。",
+    aiKeyMissing: "AI 解读尚未启用：请在 Vercel 环境变量中配置 OPENAI_API_KEY。",
+    aiError: "AI 解读暂时没有生成成功。你仍可以根据牌面先阅读这组基础提示。",
   },
   en: {
     htmlLang: "en",
@@ -203,6 +206,9 @@ const i18n = {
     studyCard: (name) => `${name} points to the ability that must be trained, integrated, or crossed next.`,
     adviceMore: "Complete the draw to reveal a fuller fate structure.",
     adviceDone: "The three cards form a sequence of past, present, and tendency. Choose one small but honest action.",
+    aiLoading: "AI is reading the spread. Hold the moment for a breath.",
+    aiKeyMissing: "AI reading is not enabled yet: configure OPENAI_API_KEY in Vercel environment variables.",
+    aiError: "AI reading could not be generated right now. You can still begin with the basic card guidance.",
   },
   ja: {
     htmlLang: "ja",
@@ -258,6 +264,9 @@ const i18n = {
     studyCard: (name) => `${name}は次に鍛え、統合し、越えるべき力を示します。`,
     adviceMore: "ドローを完了すると、運命の構造がより明確になります。",
     adviceDone: "3枚は過去、現在、流れの連続を作ります。小さくても誠実な行動を一つ選んでください。",
+    aiLoading: "AIがスプレッドを読み取っています。少しだけ静かにお待ちください。",
+    aiKeyMissing: "AIリーディングはまだ有効ではありません。Vercel の環境変数に OPENAI_API_KEY を設定してください。",
+    aiError: "AIリーディングを生成できませんでした。まずはカードの基本的な示唆を読んでください。",
   },
 };
 
@@ -274,6 +283,8 @@ let spreadIndex = 38.5;
 let hands = null;
 let camera = null;
 let currentLang = "zh";
+let readingRequestId = 0;
+let lastReadingSignature = "";
 
 const clamp = (value, min, max) => Math.min(Math.max(value, min), max);
 const distance = (a, b) => Math.hypot(a.x - b.x, a.y - b.y);
@@ -525,17 +536,101 @@ function renderSelectionStrip() {
   });
 }
 
+function isReadingComplete() {
+  return mode === "twelve" ? pickedCards.length >= 1 : pickedCards.length >= 3;
+}
+
+function readingSignature() {
+  return JSON.stringify({
+    lang: currentLang,
+    mode,
+    question: currentQuestion,
+    cards: pickedCards.map((card) => card.id),
+  });
+}
+
+function setReadingLabels() {
+  const labels = t("analysisLabels");
+  [careerText, loveText, studyText, adviceText].forEach((el, index) => {
+    el.previousElementSibling.textContent = labels[index];
+  });
+}
+
+function setFallbackReading() {
+  const q = currentQuestion || t("defaultQuestion");
+  careerText.textContent = t("career", q, cardName(pickedCards[0]));
+  loveText.textContent = pickedCards[1] ? t("loveCard", cardName(pickedCards[1])) : t("loveOne");
+  studyText.textContent = pickedCards[2] ? t("studyCard", cardName(pickedCards[2])) : t("studyOne");
+  adviceText.textContent = pickedCards.length >= 3 ? t("adviceDone") : t("adviceMore");
+}
+
+function cardPayload(card) {
+  return {
+    id: card.id,
+    name: cardName(card),
+    englishName: card.en,
+    number: card.number,
+    arcana: card.arcana,
+    suit: card.suitId || null,
+  };
+}
+
+async function requestAiReading(signature) {
+  const requestId = ++readingRequestId;
+  [careerText, loveText, studyText, adviceText].forEach((el) => {
+    el.textContent = t("aiLoading");
+    el.classList.add("is-loading");
+  });
+
+  try {
+    const response = await fetch("/api/reading", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        question: currentQuestion,
+        language: currentLang,
+        mode,
+        cards: pickedCards.map(cardPayload),
+      }),
+    });
+    const data = await response.json();
+    if (requestId !== readingRequestId || signature !== lastReadingSignature) return;
+
+    if (!response.ok) {
+      [careerText, loveText, studyText, adviceText].forEach((el) => el.classList.remove("is-loading"));
+      setFallbackReading();
+      adviceText.textContent = response.status === 503 ? t("aiKeyMissing") : `${t("aiError")} ${data.error || ""}`.trim();
+      return;
+    }
+
+    [careerText, loveText, studyText, adviceText].forEach((el) => el.classList.remove("is-loading"));
+    if (Array.isArray(data.keywords) && data.keywords.length) {
+      readingKeywords.innerHTML = data.keywords.slice(0, 3).map((item) => `<span>${escapeXml(item)}</span>`).join("");
+    }
+    careerText.textContent = data.career || careerText.textContent;
+    loveText.textContent = data.love || loveText.textContent;
+    studyText.textContent = data.study || studyText.textContent;
+    adviceText.textContent = data.advice || data.summary || adviceText.textContent;
+  } catch (error) {
+    if (requestId !== readingRequestId || signature !== lastReadingSignature) return;
+    [careerText, loveText, studyText, adviceText].forEach((el) => el.classList.remove("is-loading"));
+    setFallbackReading();
+    adviceText.textContent = t("aiError");
+  }
+}
+
 function updateReading() {
   if (!pickedCards.length) {
     readingCards.innerHTML = "";
     readingTitle.textContent = t("waiting");
     readingKeywords.innerHTML = "<span>Question</span><span>Deck</span><span>Fate</span>";
-    const labels = t("analysisLabels");
+    setReadingLabels();
     const empty = t("emptyAnalysis");
     [careerText, loveText, studyText, adviceText].forEach((el, index) => {
-      el.previousElementSibling.textContent = labels[index];
+      el.classList.remove("is-loading");
       el.textContent = empty[index];
     });
+    lastReadingSignature = "";
     return;
   }
   const names = pickedCards.map(cardName).join(" / ");
@@ -546,13 +641,19 @@ function updateReading() {
   `).join("");
   readingTitle.textContent = names;
   readingKeywords.innerHTML = pickedCards.map((card) => `<span>${card.symbol} ${card.number}</span>`).join("");
-  const labels = t("analysisLabels");
-  [careerText, loveText, studyText, adviceText].forEach((el, index) => { el.previousElementSibling.textContent = labels[index]; });
-  const q = currentQuestion || t("defaultQuestion");
-  careerText.textContent = t("career", q, cardName(pickedCards[0]));
-  loveText.textContent = pickedCards[1] ? t("loveCard", cardName(pickedCards[1])) : t("loveOne");
-  studyText.textContent = pickedCards[2] ? t("studyCard", cardName(pickedCards[2])) : t("studyOne");
-  adviceText.textContent = pickedCards.length >= 3 ? t("adviceDone") : t("adviceMore");
+  setReadingLabels();
+  [careerText, loveText, studyText, adviceText].forEach((el) => el.classList.remove("is-loading"));
+  setFallbackReading();
+
+  if (!isReadingComplete()) {
+    lastReadingSignature = "";
+    return;
+  }
+
+  const signature = readingSignature();
+  if (signature === lastReadingSignature) return;
+  lastReadingSignature = signature;
+  requestAiReading(signature);
 }
 
 function handleHandResults(results) {
