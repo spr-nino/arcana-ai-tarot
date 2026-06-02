@@ -1,170 +1,172 @@
 <!doctype html>
 <html lang="zh-CN">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>ARCANA | AI Fate Exploration</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700&family=Inter:wght@300;400;500;600&display=swap"
-      rel="stylesheet"
-    />
-    <link rel="stylesheet" href="styles.css" />
-  </head>
-  <body>
-    <canvas id="starfield" aria-hidden="true"></canvas>
-    <div class="atmosphere" aria-hidden="true"></div>
-    <div class="grain" aria-hidden="true"></div>
 
-    <header class="site-header">
-      <a class="brand" href="#hero" aria-label="ARCANA home">
-        <span class="brand-mark"></span>
-        ARCANA
-      </a>
-      <nav aria-label="Primary navigation">
-        <a href="#question">提问</a>
-        <a href="#deck">抽牌</a>
-        <a href="#reading">解读</a>
-      </nav>
-      <div class="language-switch" role="group" aria-label="Language">
-        <button class="is-active" type="button" data-lang="zh">中</button>
-        <button type="button" data-lang="en">EN</button>
-        <button type="button" data-lang="ja">日</button>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ARCANA | AI Fate Exploration</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700&family=Inter:wght@300;400;500;600&display=swap"
+    rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+
+<body>
+  <canvas id="starfield" aria-hidden="true"></canvas>
+  <div class="atmosphere" aria-hidden="true"></div>
+  <div class="grain" aria-hidden="true"></div>
+
+  <header class="site-header">
+    <a class="brand" href="#hero" aria-label="ARCANA home">
+      <span class="brand-mark"></span>
+      ARCANA
+    </a>
+    <nav aria-label="Primary navigation">
+      <a href="#question">提问</a>
+      <a href="#deck">抽牌</a>
+      <a href="#reading">解读</a>
+    </nav>
+    <div class="language-switch" role="group" aria-label="Language">
+      <button class="is-active" type="button" data-lang="zh">中</button>
+      <button type="button" data-lang="en">EN</button>
+      <button type="button" data-lang="ja">日</button>
+    </div>
+  </header>
+
+  <main>
+    <section class="hero scene" id="hero">
+      <div class="hero-card-wrap" id="heroCard" aria-hidden="true">
+        <img src="assets/fate-tarot-card.png" alt="" />
       </div>
-    </header>
+      <div class="hero-copy">
+        <p class="eyebrow">ARCANA AI FATE EXPLORATION</p>
+        <h1>FATE</h1>
+        <p class="subtitle">Every Question Shapes Your Future</p>
+        <a class="gold-button" href="#question">Begin Your Reading</a>
+      </div>
+    </section>
 
-    <main>
-      <section class="hero scene" id="hero">
-        <div class="hero-card-wrap" id="heroCard" aria-hidden="true">
-          <img src="assets/fate-tarot-card.png" alt="" />
-        </div>
-        <div class="hero-copy">
-          <p class="eyebrow">ARCANA AI FATE EXPLORATION</p>
-          <h1>FATE</h1>
-          <p class="subtitle">Every Question Shapes Your Future</p>
-          <a class="gold-button" href="#question">Begin Your Reading</a>
-        </div>
-      </section>
-
-      <section class="scroll-cinema scene" id="cinema" aria-label="Scroll driven tarot story">
-        <div class="cinema-sticky">
-          <div class="cinema-card" id="cinemaCard" aria-hidden="true">
-            <div class="cinema-card-inner">
-              <div class="cinema-card-side cinema-card-back">
-                <img src="assets/fate-tarot-card.png" alt="" />
-              </div>
-              <div class="cinema-card-side cinema-card-face">
-                <span>0</span>
-                <strong>THE FOOL</strong>
-                <em>Beginnings</em>
-              </div>
+    <section class="scroll-cinema scene" id="cinema" aria-label="Scroll driven tarot story">
+      <div class="cinema-sticky">
+        <div class="cinema-card" id="cinemaCard" aria-hidden="true">
+          <div class="cinema-card-inner">
+            <div class="cinema-card-side cinema-card-back">
+              <img src="assets/fate-tarot-card.png" alt="" />
+            </div>
+            <div class="cinema-card-side cinema-card-face">
+              <span>0</span>
+              <strong>THE FOOL</strong>
+              <em>Beginnings</em>
             </div>
           </div>
-          <div class="cinema-copy">
-            <h2 id="cinemaTitle">THE FOOL</h2>
-            <p id="cinemaLine">Every journey begins with uncertainty.</p>
-          </div>
         </div>
-      </section>
-
-      <section class="question scene" id="question">
-        <div class="question-inner">
-          <p class="eyebrow">THE QUESTION</p>
-          <h2>What do you seek?</h2>
-          <form class="question-form" id="questionForm">
-            <label class="sr-only" for="questionInput">Question</label>
-            <input id="questionInput" autocomplete="off" placeholder="写下一个真正想知道的答案" />
-            <button class="line-submit" type="submit" aria-label="Submit question"></button>
-          </form>
-          <p class="microcopy" id="questionEcho">清晰的问题，会让牌组听见你。</p>
+        <div class="cinema-copy">
+          <h2 id="cinemaTitle">THE FOOL</h2>
+          <p id="cinemaLine">Every journey begins with uncertainty.</p>
         </div>
-      </section>
+      </div>
+    </section>
 
-      <section class="deck-scene scene mode-twelve" id="deck">
-        <div class="deck-copy">
-          <p class="eyebrow">THE DECK</p>
-          <h2 id="deckTitle">选择你的抽牌仪式。</h2>
-          <p id="deckStatus">12 张命运之环，或完整 78 张牌阵。两种方式都来自同一副牌。</p>
+    <section class="question scene" id="question">
+      <div class="question-inner">
+        <p class="eyebrow">THE QUESTION</p>
+        <h2>What do you seek?</h2>
+        <form class="question-form" id="questionForm">
+          <label class="sr-only" for="questionInput">Question</label>
+          <input id="questionInput" autocomplete="off" placeholder="写下一个真正想知道的答案" />
+          <button class="line-submit" type="submit" aria-label="Submit question"></button>
+        </form>
+        <p class="microcopy" id="questionEcho">清晰的问题，会让牌组听见你。</p>
+      </div>
+    </section>
+
+    <section class="deck-scene scene mode-twelve" id="deck">
+      <div class="deck-copy">
+        <p class="eyebrow">THE DECK</p>
+        <h2 id="deckTitle">选择你的抽牌仪式。</h2>
+        <p id="deckStatus">12 张命运之环，或完整 78 张牌阵。两种方式都来自同一副牌。</p>
+      </div>
+
+      <div class="mode-switch" role="group" aria-label="Drawing mode">
+        <button class="is-active" type="button" data-mode="twelve">12 张命运之环</button>
+        <button type="button" data-mode="seventyEight">78 张完整牌阵</button>
+      </div>
+
+      <div class="gesture-ritual">
+        <button class="gesture-start" id="gestureStart" type="button">开启手势感应</button>
+        <p id="gestureStatus">先让系统识别你的手，然后用食指选择，张开五指确认。</p>
+        <video id="gestureVideo" playsinline muted></video>
+      </div>
+
+      <div class="ritual-stage" id="ritualStage">
+        <div class="deck-aura" aria-hidden="true"></div>
+        <div class="twelve-ring" id="twelveRing" aria-label="12 card circle"></div>
+        <div class="spread-viewport" id="spreadViewport" aria-label="78 card spread">
+          <div class="spread-track" id="spreadTrack"></div>
         </div>
+        <div class="energy-orb" id="energyOrb" aria-hidden="true"></div>
+      </div>
 
-        <div class="mode-switch" role="group" aria-label="Drawing mode">
-          <button class="is-active" type="button" data-mode="twelve">12 张命运之环</button>
-          <button type="button" data-mode="seventyEight">78 张完整牌阵</button>
+      <div class="selection-strip" id="selectionStrip" aria-live="polite"></div>
+
+      <div class="gesture-onboarding" id="gestureOnboarding">
+        <div class="gesture-step is-active">
+          <span class="gesture-hand point-hand"></span>
+          <p>食指移动能量</p>
         </div>
-
-        <div class="gesture-ritual">
-          <button class="gesture-start" id="gestureStart" type="button">开启手势感应</button>
-          <p id="gestureStatus">先让系统识别你的手，然后用食指选择，张开五指确认。</p>
-          <video id="gestureVideo" playsinline muted></video>
+        <div class="gesture-step">
+          <span class="gesture-hand hover-hand"></span>
+          <p>靠近牌背聚焦</p>
         </div>
-
-        <div class="ritual-stage" id="ritualStage">
-          <div class="deck-aura" aria-hidden="true"></div>
-          <div class="twelve-ring" id="twelveRing" aria-label="12 card circle"></div>
-          <div class="spread-viewport" id="spreadViewport" aria-label="78 card spread">
-            <div class="spread-track" id="spreadTrack"></div>
-          </div>
-          <div class="energy-orb" id="energyOrb" aria-hidden="true"></div>
+        <div class="gesture-step">
+          <span class="gesture-hand palm-hand"></span>
+          <p>张开五指确认</p>
         </div>
+      </div>
 
-        <div class="selection-strip" id="selectionStrip" aria-live="polite"></div>
+      <div class="destiny-confirmation" id="destinyConfirmation">
+        <span></span>
+        <strong id="destinyLabel">保持五指张开</strong>
+      </div>
+    </section>
 
-        <div class="gesture-onboarding" id="gestureOnboarding">
-          <div class="gesture-step is-active">
-            <span class="gesture-hand point-hand"></span>
-            <p>食指移动能量</p>
-          </div>
-          <div class="gesture-step">
-            <span class="gesture-hand hover-hand"></span>
-            <p>靠近牌背聚焦</p>
-          </div>
-          <div class="gesture-step">
-            <span class="gesture-hand palm-hand"></span>
-            <p>张开五指确认</p>
-          </div>
+    <section class="reading scene" id="reading">
+      <div class="reading-hero">
+        <p class="eyebrow">AI READING</p>
+        <div class="reading-cards" id="readingCards" aria-label="Drawn tarot cards"></div>
+        <h2 id="readingTitle">等待抽牌</h2>
+        <div class="keywords" id="readingKeywords">
+          <span>Question</span>
+          <span>Deck</span>
+          <span>Fate</span>
         </div>
+      </div>
+      <div class="analysis">
+        <article>
+          <span>事业</span>
+          <p id="careerText">请先提出问题，并通过手势从牌组中抽牌。</p>
+        </article>
+        <article>
+          <span>感情</span>
+          <p id="loveText">牌组会根据你的选择展开对应的命运线索。</p>
+        </article>
+        <article>
+          <span>学业</span>
+          <p id="studyText">完整牌组模式会抽取三张牌，形成更完整的结构。</p>
+        </article>
+        <article>
+          <span>建议</span>
+          <p id="adviceText">食指选择，张掌确认。不要点击牌面。</p>
+        </article>
+      </div>
+    </section>
+  </main>
 
-        <div class="destiny-confirmation" id="destinyConfirmation">
-          <span></span>
-          <strong id="destinyLabel">保持五指张开</strong>
-        </div>
-      </section>
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js"></script>
+  <script src="script.js"></script>
+</body>
 
-      <section class="reading scene" id="reading">
-        <div class="reading-hero">
-          <p class="eyebrow">AI READING</p>
-          <div class="reading-cards" id="readingCards" aria-label="Drawn tarot cards"></div>
-          <h2 id="readingTitle">等待抽牌</h2>
-          <div class="keywords" id="readingKeywords">
-            <span>Question</span>
-            <span>Deck</span>
-            <span>Fate</span>
-          </div>
-        </div>
-        <div class="analysis">
-          <article>
-            <span>事业</span>
-            <p id="careerText">请先提出问题，并通过手势从牌组中抽牌。</p>
-          </article>
-          <article>
-            <span>感情</span>
-            <p id="loveText">牌组会根据你的选择展开对应的命运线索。</p>
-          </article>
-          <article>
-            <span>学业</span>
-            <p id="studyText">完整牌组模式会抽取三张牌，形成更完整的结构。</p>
-          </article>
-          <article>
-            <span>建议</span>
-            <p id="adviceText">食指选择，张掌确认。不要点击牌面。</p>
-          </article>
-        </div>
-      </section>
-    </main>
-
-    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js"></script>
-    <script src="script.js"></script>
-  </body>
 </html>

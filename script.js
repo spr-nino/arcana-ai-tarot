@@ -424,6 +424,11 @@ function moveOrb(x, y) {
 }
 
 function focusTwelveByPoint(x, y) {
+  if (pickedCards.length && mode === "twelve") {
+    focusedIndex = -1;
+    gestureStatus.textContent = t("confirmed", cardName(pickedCards[0]));
+    return;
+  }
   const px = x * window.innerWidth;
   const py = y * window.innerHeight;
   let nearest = -1;
@@ -465,6 +470,13 @@ function isOpenPalm(landmarks) {
 }
 
 function confirmFocused(openPalm) {
+  if (mode === "twelve" && pickedCards.length) {
+    confirmStartedAt = 0;
+    destinyConfirmation.classList.remove("is-active");
+    destinyConfirmation.style.setProperty("--confirm-progress", "0");
+    deckStatus.textContent = t("confirmed", cardName(pickedCards[0]));
+    return;
+  }
   if (!openPalm || focusedIndex < 0) {
     confirmStartedAt = 0;
     destinyConfirmation.classList.remove("is-active");
@@ -643,8 +655,8 @@ function updateScrollExperience() {
 
   if (heroCard) {
     heroCard.style.setProperty("--hero-rz", `${-2 + Math.sin(y * .003) * 2.2}deg`);
-    heroCard.style.setProperty("--hero-ry", `${Math.sin(y * .002) * 7}deg`);
-    heroCard.style.setProperty("--hero-rx", `${Math.cos(y * .002) * -4}deg`);
+    heroCard.style.setProperty("--hero-scroll-ry", `${Math.sin(y * .002) * 7}deg`);
+    heroCard.style.setProperty("--hero-scroll-rx", `${Math.cos(y * .002) * -4}deg`);
   }
 
   const cinema = document.getElementById("cinema");
@@ -674,8 +686,43 @@ window.addEventListener("scroll", updateScrollExperience, { passive: true });
 window.addEventListener("mousemove", (event) => {
   const x = event.clientX / window.innerWidth - .5;
   const y = event.clientY / window.innerHeight - .5;
-  heroCard?.style.setProperty("--hero-ry", `${x * 16}deg`);
-  heroCard?.style.setProperty("--hero-rx", `${y * -12}deg`);
+  const hero = document.getElementById("hero");
+  const heroRect = hero?.getBoundingClientRect();
+  const inHero = heroRect && event.clientY >= heroRect.top && event.clientY <= heroRect.bottom;
+
+  if (inHero) {
+    const localX = ((event.clientX - heroRect.left) / heroRect.width) * 100;
+    const localY = ((event.clientY - heroRect.top) / heroRect.height) * 100;
+    document.documentElement.style.setProperty("--pointer-x", `${localX.toFixed(2)}%`);
+    document.documentElement.style.setProperty("--pointer-y", `${localY.toFixed(2)}%`);
+    document.documentElement.style.setProperty("--hero-pointer-opacity", ".72");
+    heroCard?.style.setProperty("--hero-mouse-ry", `${x * 18}deg`);
+    heroCard?.style.setProperty("--hero-mouse-rx", `${y * -14}deg`);
+    heroCard?.style.setProperty("--hero-card-x", `${x * 18}px`);
+    heroCard?.style.setProperty("--hero-card-y", `${y * 10}px`);
+    document.querySelector(".hero-copy")?.style.setProperty("--hero-copy-x", `${x * -12}px`);
+    document.querySelector(".hero-copy")?.style.setProperty("--hero-copy-y", `${y * -8}px`);
+  }
+
+  document.querySelectorAll(".gold-button").forEach((button) => {
+    const rect = button.getBoundingClientRect();
+    const dx = event.clientX - (rect.left + rect.width / 2);
+    const dy = event.clientY - (rect.top + rect.height / 2);
+    const distanceFromButton = Math.hypot(dx, dy);
+    const force = clamp(1 - distanceFromButton / 220, 0, 1);
+    button.style.setProperty("--button-nudge-x", `${dx * .045 * force}px`);
+    button.style.setProperty("--button-nudge-y", `${dy * .035 * force}px`);
+  });
+});
+
+document.getElementById("hero")?.addEventListener("mouseleave", () => {
+  document.documentElement.style.setProperty("--hero-pointer-opacity", ".18");
+  heroCard?.style.setProperty("--hero-mouse-ry", "0deg");
+  heroCard?.style.setProperty("--hero-mouse-rx", "0deg");
+  heroCard?.style.setProperty("--hero-card-x", "0px");
+  heroCard?.style.setProperty("--hero-card-y", "0px");
+  document.querySelector(".hero-copy")?.style.setProperty("--hero-copy-x", "0px");
+  document.querySelector(".hero-copy")?.style.setProperty("--hero-copy-y", "0px");
 });
 questionForm.addEventListener("submit", saveQuestion);
 gestureStart.addEventListener("click", startGesture);
