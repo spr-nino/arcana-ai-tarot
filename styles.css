@@ -44,10 +44,13 @@ button, input { font: inherit; }
 .language-switch button { min-width:34px; height:28px; border:0; border-radius:999px; color:rgba(247,242,232,.52); background:transparent; cursor:pointer; font-size:.72rem; letter-spacing:.04em; transition:color .2s ease, background .2s ease, box-shadow .2s ease; }
 .language-switch button:hover, .language-switch button.is-active { color:#f9e9bf; background:rgba(216,181,106,.14); box-shadow:0 0 20px rgba(216,181,106,.18); }
 
-.scene { position: relative; z-index: 3; min-height: 100vh; }
-.hero { display: grid; place-items: center; min-height: 118vh; padding: 120px 18px 76px; overflow: hidden; text-align: center; }
+main { position:relative; z-index:3; background:linear-gradient(180deg, transparent 0, rgba(5,5,5,.18) 24%, transparent 62%, rgba(5,5,5,.2) 100%); }
+.scene { position: relative; z-index: 3; min-height: 100vh; background:transparent; }
+.scene::before { content:""; position:absolute; inset:-22vh 0 auto; height:44vh; z-index:1; pointer-events:none; background:linear-gradient(180deg, var(--black), rgba(5,5,5,.72) 28%, rgba(5,5,5,0)); }
+.scene::after { content:""; position:absolute; inset:auto 0 -1px; height:42vh; z-index:1; pointer-events:none; background:linear-gradient(180deg, rgba(5,5,5,0), rgba(5,5,5,.82) 62%, var(--black)); }
+.hero { display: grid; place-items: center; min-height: 126vh; padding: 120px 18px 22vh; overflow: hidden; text-align: center; }
 .hero::before { content:""; position:absolute; inset:-18%; z-index:2; pointer-events:none; opacity:var(--hero-pointer-opacity,.18); background:radial-gradient(circle at var(--pointer-x,50%) var(--pointer-y,45%), rgba(216,181,106,.18), rgba(41,26,78,.1) 18%, transparent 42%); mix-blend-mode:screen; transition:opacity .36s ease; }
-.hero::after, .scroll-cinema::after, .question::after { content:""; position:absolute; inset:auto 0 0; height:34vh; pointer-events:none; background:linear-gradient(180deg,transparent,var(--black)); }
+.hero::after { height:54vh; background:linear-gradient(180deg, rgba(5,5,5,0), rgba(5,5,5,.58) 42%, rgba(5,5,5,.92) 82%, var(--black)); }
 .hero-card-wrap { position:absolute; top:46%; left:50%; z-index:3; width:clamp(178px,20vw,330px); aspect-ratio:.64; transform:translate(calc(-50% + var(--hero-card-x,0px)), calc(-50% + var(--hero-card-y,0px))) rotateX(calc(var(--hero-scroll-rx,0deg) + var(--hero-mouse-rx,0deg))) rotateY(calc(var(--hero-scroll-ry,0deg) + var(--hero-mouse-ry,0deg))) rotateZ(var(--hero-rz,-2deg)); transform-style:preserve-3d; filter:drop-shadow(0 0 26px rgba(216,181,106,.24)) drop-shadow(0 38px 80px rgba(0,0,0,.72)); animation: heroCardBreath 7.6s ease-in-out infinite; transition:filter .3s ease; will-change:transform; }
 .hero-card-wrap::before { content:""; position:absolute; inset:-28%; z-index:-1; border-radius:50%; background:radial-gradient(circle,rgba(216,181,106,.24),rgba(216,181,106,.08) 34%,transparent 66%); filter:blur(22px); animation: glowPulse 6s ease-in-out infinite; }
 .hero-card-wrap img { width:100%; height:100%; display:block; object-fit:cover; border:1px solid rgba(216,181,106,.45); border-radius:18px; box-shadow:inset 0 0 24px rgba(216,181,106,.12); }
@@ -73,9 +76,10 @@ h1 { font-size: clamp(4.9rem, 16vw, 17rem); }
 .gold-button > *, .gesture-start > *, .mode-switch button > * { position:relative; z-index:1; }
 .gold-button:hover, .gesture-start:hover, .mode-switch button:hover, .mode-switch button.is-active { background: rgba(216,181,106,.14); box-shadow: 0 0 34px rgba(216,181,106,.2); transform: translate3d(var(--button-nudge-x,0px), calc(-2px + var(--button-nudge-y,0px)), 0); }
 
-.scroll-cinema { min-height: 390vh; }
+.scroll-cinema { min-height: 390vh; margin-top:-30vh; }
 .cinema-sticky { position:sticky; top:0; min-height:100vh; display:grid; place-items:center; overflow:hidden; perspective:1800px; }
-.cinema-card { position:absolute; top:50%; left:50%; width:clamp(190px,26vw,470px); aspect-ratio:.64; transform:translate(-50%,-50%) rotateY(var(--cinema-ry,0deg)) rotateZ(var(--cinema-rz,0deg)) scale(var(--cinema-scale,1)); transform-style:preserve-3d; filter:drop-shadow(0 0 42px rgba(216,181,106,.22)) drop-shadow(0 60px 110px rgba(0,0,0,.78)); transition:filter .2s ease; }
+.cinema-sticky::before { content:""; position:absolute; inset:0; z-index:1; pointer-events:none; background:radial-gradient(circle at 50% 50%, rgba(216,181,106,.08), transparent 34%), linear-gradient(180deg, rgba(5,5,5,.86), rgba(5,5,5,0) 24%, rgba(5,5,5,0) 70%, rgba(5,5,5,.88)); }
+.cinema-card { position:absolute; top:50%; left:50%; z-index:3; width:clamp(190px,26vw,470px); aspect-ratio:.64; transform:translate(-50%,-50%) rotateY(var(--cinema-ry,0deg)) rotateZ(var(--cinema-rz,0deg)) scale(var(--cinema-scale,1)); transform-style:preserve-3d; filter:drop-shadow(0 0 42px rgba(216,181,106,.22)) drop-shadow(0 60px 110px rgba(0,0,0,.78)); transition:filter .2s ease; }
 .cinema-card-inner { position:absolute; inset:0; transform-style:preserve-3d; }
 .cinema-card-side { position:absolute; inset:0; backface-visibility:hidden; border:1px solid rgba(216,181,106,.44); border-radius:20px; overflow:hidden; background:#07070a; }
 .cinema-card-back img { width:100%; height:100%; object-fit:cover; display:block; }
@@ -89,7 +93,11 @@ h1 { font-size: clamp(4.9rem, 16vw, 17rem); }
 .cinema-copy h2 { font-size:clamp(4rem,15vw,17rem); color:rgba(247,242,232,.94); letter-spacing:.03em; text-shadow:0 0 70px rgba(216,181,106,.13); }
 .cinema-copy p { margin:0; color:rgba(247,242,232,.68); font-size:clamp(1.08rem,2.2vw,2rem); font-weight:300; }
 
-.question { display: grid; place-items: center; padding: 120px clamp(18px, 8vw, 120px); }
+.question { display: grid; place-items: center; min-height:120vh; margin-top:-34vh; padding: 34vh clamp(18px, 8vw, 120px) 20vh; overflow:hidden; }
+.question::before { background:linear-gradient(180deg, rgba(5,5,5,.98), rgba(5,5,5,.66) 38%, rgba(5,5,5,0)); }
+.question::after { height:48vh; background:linear-gradient(180deg, rgba(5,5,5,0), rgba(5,5,5,.72) 60%, var(--black)); }
+.question-inner { position:relative; z-index:4; }
+.question-inner::before { content:""; position:absolute; left:50%; top:50%; width:min(78vw,760px); height:min(78vw,760px); z-index:-1; transform:translate(-50%,-50%); border-radius:50%; background:radial-gradient(circle, rgba(216,181,106,.08), rgba(34,18,70,.12) 42%, transparent 68%); filter:blur(18px); }
 .question-inner { width: min(100%, 980px); }
 .question h2, .deck-copy h2 { margin-top: 18px; font-size: clamp(3.2rem, 9vw, 9.5rem); }
 .question-form { position: relative; display: flex; align-items: center; margin-top: clamp(44px, 8vw, 92px); border-bottom: 1px solid rgba(216,181,106,.56); }
@@ -101,7 +109,10 @@ h1 { font-size: clamp(4.9rem, 16vw, 17rem); }
 .line-submit::before { content:""; display:block; width:13px; height:13px; margin:auto; border-top:1px solid var(--gold); border-right:1px solid var(--gold); transform:rotate(45deg); }
 .microcopy, .deck-copy p:last-child, .gesture-ritual p { color: rgba(247,242,232,.52); line-height: 1.6; }
 
-.deck-scene { min-height: 145vh; padding: 110px clamp(18px, 6vw, 90px); overflow: hidden; }
+.deck-scene { min-height: 160vh; margin-top:-22vh; padding: 26vh clamp(18px, 6vw, 90px) 20vh; overflow: hidden; }
+.deck-scene::before { background:linear-gradient(180deg, rgba(5,5,5,.96), rgba(5,5,5,.56) 42%, rgba(5,5,5,0)); }
+.deck-scene::after { height:52vh; background:linear-gradient(180deg, rgba(5,5,5,0), rgba(5,5,5,.74) 58%, var(--black)); }
+.deck-scene .deck-copy, .deck-scene .mode-switch, .deck-scene .gesture-ritual, .deck-scene .ritual-stage, .deck-scene .selection-strip, .deck-scene .gesture-onboarding { position:relative; z-index:4; }
 .deck-copy { position: relative; z-index: 4; width: min(100%, 1060px); margin: 0 auto; text-align: center; }
 .mode-switch { position: relative; z-index: 6; display: flex; justify-content: center; flex-wrap: wrap; gap: 12px; margin: 28px auto 0; }
 .ritual-stage { position: relative; width: min(96vw, 1040px); height: clamp(440px, 58vw, 720px); margin: 10px auto 0; perspective: 1500px; transform-style: preserve-3d; }
@@ -155,7 +166,10 @@ h1 { font-size: clamp(4.9rem, 16vw, 17rem); }
 .destiny-confirmation span { width:160px; height:2px; background:linear-gradient(90deg,var(--gold) calc(var(--confirm-progress,0) * 100%), rgba(216,181,106,.18) 0); box-shadow:0 0 18px rgba(216,181,106,.4); }
 .destiny-confirmation strong { font-family:var(--font-display); font-weight:500; letter-spacing:.08em; }
 
-.reading { padding:120px clamp(18px,7vw,120px); }
+.reading { margin-top:-24vh; padding:28vh clamp(18px,7vw,120px) 120px; overflow:hidden; }
+.reading::before { background:linear-gradient(180deg, rgba(5,5,5,.98), rgba(5,5,5,.62) 40%, rgba(5,5,5,0)); }
+.reading::after { height:56vh; background:linear-gradient(180deg, rgba(5,5,5,0), rgba(5,5,5,.62) 58%, var(--black)); }
+.reading-hero, .analysis, .fate-report, .history-panel { position:relative; z-index:4; }
 .reading-hero { display:grid; justify-items:center; gap:24px; min-height:84vh; align-content:center; text-align:center; }
 .reading-cards { display:flex; justify-content:center; align-items:flex-end; gap:clamp(14px,2vw,28px); width:min(100%,780px); min-height:clamp(260px,34vw,460px); margin:10px auto 8px; perspective:1400px; }
 .reading-card-face { position:relative; width:clamp(150px,18vw,260px); aspect-ratio:.6; margin:0; border:1px solid rgba(216,181,106,.42); border-radius:10px; overflow:hidden; background:#050505; box-shadow:0 0 46px rgba(216,181,106,.18),0 34px 90px rgba(0,0,0,.74); transform:rotateZ(var(--face-rz,0deg)) translateY(var(--face-y,0)); }
@@ -217,8 +231,11 @@ h1 { font-size: clamp(4.9rem, 16vw, 17rem); }
   .hero { min-height:104vh; }
   .hero-card-wrap { top:42%; width:clamp(150px,46vw,220px); }
   .hero-copy { margin-top:42vh; }
-  .scroll-cinema { min-height:330vh; }
+  .scroll-cinema { min-height:330vh; margin-top:-18vh; }
   .cinema-card { width:clamp(170px,56vw,260px); }
+  .question { margin-top:-20vh; padding-top:26vh; padding-bottom:16vh; }
+  .deck-scene { margin-top:-14vh; padding-top:22vh; padding-bottom:16vh; }
+  .reading { margin-top:-16vh; padding-top:24vh; }
   .question h2, .deck-copy h2 { font-size:clamp(3.1rem,15vw,6rem); }
   .reading-hero h2 { font-size:clamp(2.1rem,10vw,4.6rem); }
   .reading-cards { min-height:240px; gap:10px; }
