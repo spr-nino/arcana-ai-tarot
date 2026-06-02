@@ -25,12 +25,24 @@ const careerText = document.getElementById("careerText");
 const loveText = document.getElementById("loveText");
 const studyText = document.getElementById("studyText");
 const adviceText = document.getElementById("adviceText");
+const posterCanvas = document.getElementById("posterCanvas");
+const posterCtx = posterCanvas.getContext("2d");
+const posterEyebrow = document.getElementById("posterEyebrow");
+const posterTitle = document.getElementById("posterTitle");
+const posterHint = document.getElementById("posterHint");
+const downloadPoster = document.getElementById("downloadPoster");
+const saveHistoryButton = document.getElementById("saveHistory");
+const historyEyebrow = document.getElementById("historyEyebrow");
+const historyTitle = document.getElementById("historyTitle");
+const historyList = document.getElementById("historyList");
+const clearHistory = document.getElementById("clearHistory");
 const modeButtons = [...document.querySelectorAll("[data-mode]")];
 const langButtons = [...document.querySelectorAll("[data-lang]")];
 const analysisBlocks = [...document.querySelectorAll(".analysis article")];
 const CARD_BACK_SRC = "assets/fate-tarot-card.png";
 const SPREAD_GAP = 64;
 const COMMONS_CARD_BASE = "https://commons.wikimedia.org/wiki/Special:Redirect/file/";
+const HISTORY_KEY = "arcanaReadingHistory";
 
 const majorArcana = [
   ["fool", "0", "愚者", "THE FOOL", "△"], ["magician", "I", "魔术师", "THE MAGICIAN", "∞"],
@@ -151,6 +163,19 @@ const i18n = {
     aiLoading: "AI 正在读取牌阵，请保持片刻安静。",
     aiKeyMissing: "AI 解读尚未启用：请在 Vercel 环境变量中配置 OPENAI_API_KEY。",
     aiError: "AI 解读暂时没有生成成功。你仍可以根据牌面先阅读这组基础提示。",
+    posterEyebrow: "YOUR FATE REPORT",
+    posterTitle: "命运海报",
+    posterHint: "完成抽牌后生成专属海报，可下载并分享。",
+    downloadPoster: "下载海报",
+    saveHistory: "保存记录",
+    historyEyebrow: "READING HISTORY",
+    historyTitle: "历史记录",
+    clearHistory: "清空",
+    historyEmpty: "还没有历史记录。完成一次抽牌后，它会出现在这里。",
+    posterWaiting: "等待抽牌",
+    posterQuestion: "问题",
+    posterSummary: "AI 总结",
+    saved: "已保存",
   },
   en: {
     htmlLang: "en",
@@ -209,6 +234,19 @@ const i18n = {
     aiLoading: "AI is reading the spread. Hold the moment for a breath.",
     aiKeyMissing: "AI reading is not enabled yet: configure OPENAI_API_KEY in Vercel environment variables.",
     aiError: "AI reading could not be generated right now. You can still begin with the basic card guidance.",
+    posterEyebrow: "YOUR FATE REPORT",
+    posterTitle: "Fate Poster",
+    posterHint: "Complete a draw to generate a personal poster you can download and share.",
+    downloadPoster: "Download Poster",
+    saveHistory: "Save Record",
+    historyEyebrow: "READING HISTORY",
+    historyTitle: "History",
+    clearHistory: "Clear",
+    historyEmpty: "No history yet. Finish a reading and it will appear here.",
+    posterWaiting: "Waiting for the draw",
+    posterQuestion: "Question",
+    posterSummary: "AI Summary",
+    saved: "Saved",
   },
   ja: {
     htmlLang: "ja",
@@ -267,6 +305,19 @@ const i18n = {
     aiLoading: "AIがスプレッドを読み取っています。少しだけ静かにお待ちください。",
     aiKeyMissing: "AIリーディングはまだ有効ではありません。Vercel の環境変数に OPENAI_API_KEY を設定してください。",
     aiError: "AIリーディングを生成できませんでした。まずはカードの基本的な示唆を読んでください。",
+    posterEyebrow: "YOUR FATE REPORT",
+    posterTitle: "運命ポスター",
+    posterHint: "ドロー完了後、共有できる専用ポスターを生成します。",
+    downloadPoster: "ポスターを保存",
+    saveHistory: "記録を保存",
+    historyEyebrow: "READING HISTORY",
+    historyTitle: "履歴",
+    clearHistory: "削除",
+    historyEmpty: "履歴はまだありません。リーディング完了後ここに表示されます。",
+    posterWaiting: "カード待機中",
+    posterQuestion: "問い",
+    posterSummary: "AI要約",
+    saved: "保存しました",
   },
 };
 
@@ -575,6 +626,205 @@ function cardPayload(card) {
   };
 }
 
+function readHistory() {
+  try {
+    return JSON.parse(localStorage.getItem(HISTORY_KEY) || "[]");
+  } catch {
+    return [];
+  }
+}
+
+function writeHistory(items) {
+  localStorage.setItem(HISTORY_KEY, JSON.stringify(items.slice(0, 12)));
+}
+
+function currentReadingRecord(source = "manual") {
+  if (!pickedCards.length) return null;
+  return {
+    id: `${Date.now()}-${Math.random().toString(16).slice(2)}`,
+    createdAt: new Date().toISOString(),
+    language: currentLang,
+    mode,
+    source,
+    question: currentQuestion || t("defaultQuestion"),
+    cards: pickedCards.map((card) => ({
+      id: card.id,
+      number: card.number,
+      symbol: card.symbol,
+      name: cardName(card),
+      englishName: card.en,
+      arcana: card.arcana,
+      suitId: card.suitId || null,
+    })),
+    reading: {
+      career: careerText.textContent,
+      love: loveText.textContent,
+      study: studyText.textContent,
+      advice: adviceText.textContent,
+    },
+  };
+}
+
+function saveCurrentReading(source = "manual") {
+  if (!isReadingComplete()) return;
+  const record = currentReadingRecord(source);
+  if (!record) return;
+  const signature = JSON.stringify({
+    question: record.question,
+    mode: record.mode,
+    lang: record.language,
+    cards: record.cards.map((card) => card.id),
+    advice: record.reading.advice,
+  });
+  const history = readHistory().filter((item) => item.signature !== signature);
+  writeHistory([{ ...record, signature }, ...history]);
+  saveHistoryButton.textContent = t("saved");
+  setTimeout(() => { saveHistoryButton.textContent = t("saveHistory"); }, 1200);
+  renderHistory();
+}
+
+function drawWrappedText(ctx, text, x, y, maxWidth, lineHeight, maxLines = 6) {
+  const raw = String(text || "");
+  const hasSpaces = /\s/.test(raw);
+  const words = hasSpaces ? raw.split(/\s+/) : [...raw];
+  const joiner = hasSpaces ? " " : "";
+  const lines = [];
+  let line = "";
+  words.forEach((word) => {
+    const test = line ? `${line}${joiner}${word}` : word;
+    if (ctx.measureText(test).width > maxWidth && line) {
+      lines.push(line);
+      line = word;
+    } else {
+      line = test;
+    }
+  });
+  if (line) lines.push(line);
+  lines.slice(0, maxLines).forEach((item, index) => ctx.fillText(item, x, y + index * lineHeight));
+  return y + Math.min(lines.length, maxLines) * lineHeight;
+}
+
+function drawPoster() {
+  const w = posterCanvas.width;
+  const h = posterCanvas.height;
+  const names = pickedCards.length ? pickedCards.map(cardName).join(" / ") : t("posterWaiting");
+  const date = new Date().toLocaleDateString(currentLang === "zh" ? "zh-CN" : currentLang === "ja" ? "ja-JP" : "en-US");
+  posterCtx.clearRect(0, 0, w, h);
+  const bg = posterCtx.createRadialGradient(w * .5, h * .32, 40, w * .5, h * .35, h * .8);
+  bg.addColorStop(0, "#2b2240");
+  bg.addColorStop(.46, "#07070a");
+  bg.addColorStop(1, "#050505");
+  posterCtx.fillStyle = bg;
+  posterCtx.fillRect(0, 0, w, h);
+
+  posterCtx.strokeStyle = "rgba(216,181,106,.52)";
+  posterCtx.lineWidth = 2;
+  posterCtx.strokeRect(54, 54, w - 108, h - 108);
+  posterCtx.strokeStyle = "rgba(216,181,106,.18)";
+  posterCtx.strokeRect(86, 86, w - 172, h - 172);
+
+  posterCtx.textAlign = "center";
+  posterCtx.fillStyle = "#d8b56a";
+  posterCtx.font = "24px Cinzel, Georgia, serif";
+  posterCtx.fillText("ARCANA AI FATE EXPLORATION", w / 2, 138);
+  posterCtx.fillStyle = "#f7f2e8";
+  posterCtx.font = "86px Cinzel, Georgia, serif";
+  drawWrappedText(posterCtx, names, w / 2, 250, 860, 88, 3);
+
+  posterCtx.fillStyle = "rgba(216,181,106,.2)";
+  posterCtx.beginPath();
+  posterCtx.arc(w / 2, 520, 150, 0, Math.PI * 2);
+  posterCtx.strokeStyle = "rgba(216,181,106,.34)";
+  posterCtx.stroke();
+  posterCtx.fillStyle = "#d8b56a";
+  posterCtx.font = "120px Cinzel, Georgia, serif";
+  posterCtx.fillText(pickedCards[0]?.symbol || "✦", w / 2, 560);
+
+  posterCtx.textAlign = "left";
+  posterCtx.fillStyle = "rgba(216,181,106,.82)";
+  posterCtx.font = "26px Inter, Arial, sans-serif";
+  posterCtx.fillText(date, 120, 760);
+  posterCtx.fillText(t("posterQuestion"), 120, 845);
+  posterCtx.fillStyle = "rgba(247,242,232,.82)";
+  posterCtx.font = "34px Inter, Arial, sans-serif";
+  drawWrappedText(posterCtx, currentQuestion || t("defaultQuestion"), 120, 895, 840, 48, 3);
+
+  posterCtx.fillStyle = "rgba(216,181,106,.82)";
+  posterCtx.font = "26px Inter, Arial, sans-serif";
+  posterCtx.fillText(t("posterSummary"), 120, 1080);
+  posterCtx.fillStyle = "rgba(247,242,232,.78)";
+  posterCtx.font = "32px Inter, Arial, sans-serif";
+  drawWrappedText(posterCtx, adviceText.textContent || t("posterHint"), 120, 1132, 840, 46, 5);
+
+  posterCtx.textAlign = "center";
+  posterCtx.fillStyle = "rgba(216,181,106,.72)";
+  posterCtx.font = "22px Cinzel, Georgia, serif";
+  posterCtx.fillText("YOUR FATE REPORT", w / 2, h - 108);
+}
+
+function downloadPosterImage() {
+  drawPoster();
+  const link = document.createElement("a");
+  link.download = `arcana-fate-report-${Date.now()}.png`;
+  link.href = posterCanvas.toDataURL("image/png");
+  link.click();
+}
+
+function renderHistory() {
+  const history = readHistory();
+  if (!history.length) {
+    historyList.innerHTML = `<p class="history-empty">${t("historyEmpty")}</p>`;
+    return;
+  }
+  historyList.innerHTML = history.map((item) => {
+    const cards = item.cards.map((card) => escapeXml(card.name)).join(" / ");
+    const date = new Date(item.createdAt).toLocaleString(currentLang === "zh" ? "zh-CN" : currentLang === "ja" ? "ja-JP" : "en-US", { dateStyle: "medium", timeStyle: "short" });
+    return `<button class="history-item" type="button" data-history-id="${item.id}">
+      <span><strong>${cards}</strong>${escapeXml(item.question)}</span>
+      <em>${date}</em>
+    </button>`;
+  }).join("");
+}
+
+function loadHistoryRecord(id) {
+  const record = readHistory().find((item) => item.id === id);
+  if (!record) return;
+  mode = record.mode === "seventyEight" ? "seventyEight" : "twelve";
+  setMode(mode);
+  currentQuestion = record.question;
+  questionInput.value = record.question;
+  questionEcho.textContent = t("questionSaved", currentQuestion);
+  pickedCards = record.cards.map((card) => allCards.find((item) => item.id === card.id) || {
+    id: card.id,
+    number: card.number,
+    symbol: card.symbol,
+    zh: card.name,
+    en: card.englishName,
+    arcana: card.arcana,
+    suitId: card.suitId,
+  });
+  renderSelectionStrip();
+  [...spreadTrack.children].forEach((el) => el.classList.remove("is-picked"));
+  pickedCards.forEach((card) => {
+    const index = allCards.findIndex((item) => item.id === card.id);
+    if (index >= 0) spreadTrack.children[index]?.classList.add("is-picked");
+  });
+  readingTitle.textContent = record.cards.map((card) => card.name).join(" / ");
+  readingKeywords.innerHTML = record.cards.map((card) => `<span>${escapeXml(card.symbol)} ${escapeXml(card.number)}</span>`).join("");
+  readingCards.innerHTML = record.cards.map((card) => `
+    <figure class="reading-card-face">
+      <img src="${classicCardFace(card)}" alt="${escapeXml(card.englishName)} tarot card" loading="lazy" />
+    </figure>
+  `).join("");
+  setReadingLabels();
+  careerText.textContent = record.reading.career;
+  loveText.textContent = record.reading.love;
+  studyText.textContent = record.reading.study;
+  adviceText.textContent = record.reading.advice;
+  drawPoster();
+  document.getElementById("reading").scrollIntoView({ behavior: "smooth" });
+}
+
 async function requestAiReading(signature) {
   const requestId = ++readingRequestId;
   [careerText, loveText, studyText, adviceText].forEach((el) => {
@@ -600,6 +850,8 @@ async function requestAiReading(signature) {
       [careerText, loveText, studyText, adviceText].forEach((el) => el.classList.remove("is-loading"));
       setFallbackReading();
       adviceText.textContent = response.status === 503 ? t("aiKeyMissing") : `${t("aiError")} ${data.error || ""}`.trim();
+      drawPoster();
+      saveCurrentReading("fallback");
       return;
     }
 
@@ -611,11 +863,15 @@ async function requestAiReading(signature) {
     loveText.textContent = data.love || loveText.textContent;
     studyText.textContent = data.study || studyText.textContent;
     adviceText.textContent = data.advice || data.summary || adviceText.textContent;
+    drawPoster();
+    saveCurrentReading("ai");
   } catch (error) {
     if (requestId !== readingRequestId || signature !== lastReadingSignature) return;
     [careerText, loveText, studyText, adviceText].forEach((el) => el.classList.remove("is-loading"));
     setFallbackReading();
     adviceText.textContent = t("aiError");
+    drawPoster();
+    saveCurrentReading("fallback");
   }
 }
 
@@ -631,6 +887,7 @@ function updateReading() {
       el.textContent = empty[index];
     });
     lastReadingSignature = "";
+    drawPoster();
     return;
   }
   const names = pickedCards.map(cardName).join(" / ");
@@ -647,6 +904,7 @@ function updateReading() {
 
   if (!isReadingComplete()) {
     lastReadingSignature = "";
+    drawPoster();
     return;
   }
 
@@ -733,6 +991,14 @@ function applyLanguage(nextLang) {
   document.querySelector(".deck-copy .eyebrow").textContent = t("deckEyebrow");
   modeButtons[0].textContent = t("modeTwelve");
   modeButtons[1].textContent = t("modeSeventyEight");
+  posterEyebrow.textContent = t("posterEyebrow");
+  posterTitle.textContent = t("posterTitle");
+  posterHint.textContent = t("posterHint");
+  downloadPoster.textContent = t("downloadPoster");
+  saveHistoryButton.textContent = t("saveHistory");
+  historyEyebrow.textContent = t("historyEyebrow");
+  historyTitle.textContent = t("historyTitle");
+  clearHistory.textContent = t("clearHistory");
   gestureStart.textContent = t("gestureStart");
   if (gestureStart.style.display !== "none") gestureStatus.textContent = t("gestureIdle");
   const gestureTexts = [t("gestureMove"), t("gestureHover"), t("gesturePalm")];
@@ -748,6 +1014,8 @@ function applyLanguage(nextLang) {
   }
   renderSelectionStrip();
   updateReading();
+  renderHistory();
+  drawPoster();
 }
 
 function updateScrollExperience() {
@@ -827,6 +1095,16 @@ document.getElementById("hero")?.addEventListener("mouseleave", () => {
 });
 questionForm.addEventListener("submit", saveQuestion);
 gestureStart.addEventListener("click", startGesture);
+downloadPoster.addEventListener("click", downloadPosterImage);
+saveHistoryButton.addEventListener("click", () => saveCurrentReading("manual"));
+clearHistory.addEventListener("click", () => {
+  writeHistory([]);
+  renderHistory();
+});
+historyList.addEventListener("click", (event) => {
+  const item = event.target.closest("[data-history-id]");
+  if (item) loadHistoryRecord(item.dataset.historyId);
+});
 modeButtons.forEach((button) => button.addEventListener("click", () => setMode(button.dataset.mode)));
 langButtons.forEach((button) => button.addEventListener("click", () => applyLanguage(button.dataset.lang)));
 
@@ -836,5 +1114,7 @@ renderSpread();
 setMode("twelve");
 observeAnalysis();
 applyLanguage("zh");
+renderHistory();
+drawPoster();
 updateScrollExperience();
 requestAnimationFrame(animate);

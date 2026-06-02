@@ -171,6 +171,23 @@ h1 { font-size: clamp(4.9rem, 16vw, 17rem); }
 .analysis span { display:block; margin-bottom:18px; color:var(--gold); font-family:var(--font-display); font-size:clamp(1.4rem,2.6vw,2.7rem); }
 .analysis p { margin:0; color:rgba(247,242,232,.72); font-size:clamp(1.18rem,2.8vw,2.35rem); font-weight:300; line-height:1.38; }
 .analysis p.is-loading { color:rgba(216,181,106,.72); animation: textBreath 1.8s ease-in-out infinite; }
+.fate-report { display:grid; grid-template-columns:minmax(260px,.82fr) minmax(280px,520px); align-items:center; gap:clamp(28px,6vw,88px); max-width:1180px; margin:0 auto 120px; padding:72px 0 20px; }
+.report-copy { display:grid; gap:18px; align-content:center; }
+.report-copy h3, .history-head h3 { margin:0; font-family:var(--font-display); font-weight:500; font-size:clamp(2.4rem,6vw,6.4rem); line-height:.98; }
+.report-copy p:not(.eyebrow) { margin:0; max-width:520px; color:rgba(247,242,232,.62); font-size:clamp(1rem,1.8vw,1.25rem); line-height:1.6; }
+.report-actions { display:flex; flex-wrap:wrap; gap:12px; margin-top:10px; }
+.report-button { min-height:44px; padding:0 22px; border:1px solid rgba(216,181,106,.45); border-radius:999px; color:#f9e9bf; background:rgba(216,181,106,.1); cursor:pointer; transition:transform .2s ease, box-shadow .2s ease, background .2s ease; }
+.report-button:hover { transform:translateY(-2px); background:rgba(216,181,106,.16); box-shadow:0 0 34px rgba(216,181,106,.18); }
+.report-button.ghost { color:rgba(247,242,232,.68); background:rgba(5,5,5,.18); border-color:rgba(216,181,106,.22); }
+#posterCanvas { width:100%; max-width:520px; aspect-ratio:3/4; border:1px solid rgba(216,181,106,.34); border-radius:10px; background:#050505; box-shadow:0 0 46px rgba(216,181,106,.16),0 36px 110px rgba(0,0,0,.72); }
+.history-panel { max-width:1180px; margin:0 auto 140px; border-top:1px solid rgba(216,181,106,.18); padding-top:44px; }
+.history-head { display:flex; align-items:flex-end; justify-content:space-between; gap:20px; margin-bottom:26px; }
+.history-list { display:grid; gap:12px; }
+.history-item { width:100%; display:grid; grid-template-columns:1fr auto; gap:16px; align-items:center; padding:18px 0; border:0; border-bottom:1px solid rgba(216,181,106,.12); color:inherit; background:transparent; text-align:left; cursor:pointer; }
+.history-item strong { display:block; margin-bottom:8px; color:rgba(247,242,232,.9); font-family:var(--font-display); font-weight:500; font-size:clamp(1.2rem,2vw,1.7rem); }
+.history-item span { color:rgba(247,242,232,.48); font-size:.92rem; line-height:1.5; }
+.history-item em { color:var(--gold); font-style:normal; font-size:.82rem; letter-spacing:.08em; text-transform:uppercase; }
+.history-empty { color:rgba(247,242,232,.48); padding:22px 0; border-bottom:1px solid rgba(216,181,106,.12); }
 .sr-only { position:absolute; width:1px; height:1px; padding:0; margin:-1px; overflow:hidden; clip:rect(0,0,0,0); white-space:nowrap; border:0; }
 
 @keyframes spin { to { transform: rotate(360deg); } }
@@ -206,6 +223,9 @@ h1 { font-size: clamp(4.9rem, 16vw, 17rem); }
   .reading-hero h2 { font-size:clamp(2.1rem,10vw,4.6rem); }
   .reading-cards { min-height:240px; gap:10px; }
   .reading-card-face { width:clamp(104px,31vw,146px); border-radius:8px; }
+  .fate-report { grid-template-columns:1fr; padding-top:30px; }
+  .history-head { align-items:flex-start; flex-direction:column; }
+  .history-item { grid-template-columns:1fr; }
   .gesture-onboarding { grid-template-columns:1fr; gap:4px; }
   .gesture-step { min-height:88px; grid-template-columns:72px 1fr; align-items:center; justify-items:start; text-align:left; }
   .ritual-stage { height:460px; }

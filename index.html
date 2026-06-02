@@ -161,6 +161,28 @@
           <p id="adviceText">食指选择，张掌确认。不要点击牌面。</p>
         </article>
       </div>
+      <div class="fate-report" id="fateReport">
+        <div class="report-copy">
+          <p class="eyebrow" id="posterEyebrow">YOUR FATE REPORT</p>
+          <h3 id="posterTitle">命运海报</h3>
+          <p id="posterHint">完成抽牌后生成专属海报。</p>
+          <div class="report-actions">
+            <button class="report-button" id="downloadPoster" type="button">下载海报</button>
+            <button class="report-button ghost" id="saveHistory" type="button">保存记录</button>
+          </div>
+        </div>
+        <canvas id="posterCanvas" width="1080" height="1440" aria-label="Fate report poster"></canvas>
+      </div>
+      <div class="history-panel" id="historyPanel">
+        <div class="history-head">
+          <div>
+            <p class="eyebrow" id="historyEyebrow">READING HISTORY</p>
+            <h3 id="historyTitle">历史记录</h3>
+          </div>
+          <button class="report-button ghost" id="clearHistory" type="button">清空</button>
+        </div>
+        <div class="history-list" id="historyList"></div>
+      </div>
     </section>
   </main>
 
