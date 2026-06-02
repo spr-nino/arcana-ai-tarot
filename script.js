@@ -38,6 +38,7 @@ const historyList = document.getElementById("historyList");
 const clearHistory = document.getElementById("clearHistory");
 const modeButtons = [...document.querySelectorAll("[data-mode]")];
 const langButtons = [...document.querySelectorAll("[data-lang]")];
+const gestureSteps = [...document.querySelectorAll(".gesture-step")];
 const analysisBlocks = [...document.querySelectorAll(".analysis article")];
 const CARD_BACK_SRC = "assets/fate-tarot-card.png";
 const SPREAD_GAP = 64;
@@ -336,6 +337,8 @@ let camera = null;
 let currentLang = "zh";
 let readingRequestId = 0;
 let lastReadingSignature = "";
+let gestureStepIndex = 0;
+let gestureStepTimer = null;
 
 const clamp = (value, min, max) => Math.min(Math.max(value, min), max);
 const distance = (a, b) => Math.hypot(a.x - b.x, a.y - b.y);
@@ -543,8 +546,10 @@ function confirmFocused(openPalm) {
     confirmStartedAt = 0;
     destinyConfirmation.classList.remove("is-active");
     destinyConfirmation.style.setProperty("--confirm-progress", "0");
+    setGestureStep(focusedIndex >= 0 ? 1 : 0);
     return;
   }
+  setGestureStep(2);
   destinyConfirmation.classList.add("is-active");
   if (!confirmStartedAt) confirmStartedAt = performance.now();
   const progress = clamp((performance.now() - confirmStartedAt) / 950, 0, 1);
@@ -585,6 +590,19 @@ function renderSelectionStrip() {
     mini.appendChild(img);
     selectionStrip.appendChild(mini);
   });
+}
+
+function setGestureStep(index) {
+  gestureStepIndex = clamp(index, 0, gestureSteps.length - 1);
+  gestureSteps.forEach((step, itemIndex) => step.classList.toggle("is-active", itemIndex === gestureStepIndex));
+}
+
+function startGestureStepLoop() {
+  if (gestureStepTimer) clearInterval(gestureStepTimer);
+  gestureStepTimer = setInterval(() => {
+    if (deckScene.classList.contains("is-gesture-active")) return;
+    setGestureStep((gestureStepIndex + 1) % gestureSteps.length);
+  }, 2200);
 }
 
 function isReadingComplete() {
@@ -1002,7 +1020,7 @@ function applyLanguage(nextLang) {
   gestureStart.textContent = t("gestureStart");
   if (gestureStart.style.display !== "none") gestureStatus.textContent = t("gestureIdle");
   const gestureTexts = [t("gestureMove"), t("gestureHover"), t("gesturePalm")];
-  document.querySelectorAll(".gesture-step p").forEach((item, index) => { item.textContent = gestureTexts[index]; });
+  gestureSteps.forEach((step, index) => { step.querySelector("p").textContent = gestureTexts[index]; });
   document.getElementById("destinyLabel").textContent = t("holdPalm");
   document.querySelector(".reading .eyebrow").textContent = t("readingEyebrow");
 
@@ -1105,6 +1123,10 @@ historyList.addEventListener("click", (event) => {
   const item = event.target.closest("[data-history-id]");
   if (item) loadHistoryRecord(item.dataset.historyId);
 });
+gestureSteps.forEach((step, index) => {
+  step.addEventListener("mouseenter", () => setGestureStep(index));
+  step.addEventListener("focusin", () => setGestureStep(index));
+});
 modeButtons.forEach((button) => button.addEventListener("click", () => setMode(button.dataset.mode)));
 langButtons.forEach((button) => button.addEventListener("click", () => applyLanguage(button.dataset.lang)));
 
@@ -1116,5 +1138,6 @@ observeAnalysis();
 applyLanguage("zh");
 renderHistory();
 drawPoster();
+startGestureStepLoop();
 updateScrollExperience();
 requestAnimationFrame(animate);
