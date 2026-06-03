@@ -157,8 +157,10 @@ const i18n = {
     career: (q, name) => `围绕“${q}”，${name}提示你先看见正在成形的机会，而不是急于证明结果。`,
     loveOne: "关系中的答案会从真实感受里浮现。",
     loveCard: (name) => `${name}把关系中的隐藏需求带到光下。`,
+    studySingle: (name) => `${name}提示你把注意力收回到一个核心课题：先稳定节奏，再看清下一步。`,
     studyOne: "完整牌阵会用第三张牌补全成长线索。",
     studyCard: (name) => `${name}代表接下来需要被训练、整合或跨越的能力。`,
+    adviceSingle: "这次单牌解读已经完成。把牌面给你的第一直觉写下来，然后选择一个今天就能执行的小行动。",
     adviceMore: "继续完成抽牌，命运结构会更完整。",
     adviceDone: "三张牌形成了过去、现在与趋势的连续结构。选择一个最小但诚实的行动。",
     aiLoading: "AI 正在读取牌阵，请保持片刻安静。",
@@ -228,8 +230,10 @@ const i18n = {
     career: (q, name) => `Around "${q}", ${name} asks you to notice the opportunity forming before rushing to prove the outcome.`,
     loveOne: "The answer in relationships will rise from honest feeling.",
     loveCard: (name) => `${name} brings hidden relational needs into the light.`,
+    studySingle: (name) => `${name} asks you to return to one central lesson: steady the rhythm first, then choose the next step.`,
     studyOne: "The full spread will use a third card to complete the growth line.",
     studyCard: (name) => `${name} points to the ability that must be trained, integrated, or crossed next.`,
+    adviceSingle: "This single-card reading is complete. Write down your first instinct from the card, then choose one small action you can take today.",
     adviceMore: "Complete the draw to reveal a fuller fate structure.",
     adviceDone: "The three cards form a sequence of past, present, and tendency. Choose one small but honest action.",
     aiLoading: "AI is reading the spread. Hold the moment for a breath.",
@@ -299,8 +303,10 @@ const i18n = {
     career: (q, name) => `「${q}」について、${name}は結果を急ぐ前に、形になりつつある機会を見るよう促しています。`,
     loveOne: "関係性の答えは、正直な感覚の中から浮かび上がります。",
     loveCard: (name) => `${name}は関係の中に隠れた必要を光の下へ運びます。`,
+    studySingle: (name) => `${name}は一つの中心課題へ意識を戻すよう促します。まずリズムを整え、次の一歩を見てください。`,
     studyOne: "フルスプレッドでは、3枚目が成長の線を補います。",
     studyCard: (name) => `${name}は次に鍛え、統合し、越えるべき力を示します。`,
+    adviceSingle: "この一枚引きのリーディングは完了しています。カードから受け取った最初の直感を書き留め、今日できる小さな行動を一つ選んでください。",
     adviceMore: "ドローを完了すると、運命の構造がより明確になります。",
     adviceDone: "3枚は過去、現在、流れの連続を作ります。小さくても誠実な行動を一つ選んでください。",
     aiLoading: "AIがスプレッドを読み取っています。少しだけ静かにお待ちください。",
@@ -629,6 +635,11 @@ function setFallbackReading() {
   const q = currentQuestion || t("defaultQuestion");
   careerText.textContent = t("career", q, cardName(pickedCards[0]));
   loveText.textContent = pickedCards[1] ? t("loveCard", cardName(pickedCards[1])) : t("loveOne");
+  if (mode === "twelve") {
+    studyText.textContent = t("studySingle", cardName(pickedCards[0]));
+    adviceText.textContent = t("adviceSingle");
+    return;
+  }
   studyText.textContent = pickedCards[2] ? t("studyCard", cardName(pickedCards[2])) : t("studyOne");
   adviceText.textContent = pickedCards.length >= 3 ? t("adviceDone") : t("adviceMore");
 }
