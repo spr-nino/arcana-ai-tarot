@@ -21,6 +21,7 @@ const destinyConfirmation = document.getElementById("destinyConfirmation");
 const readingCards = document.getElementById("readingCards");
 const readingTitle = document.getElementById("readingTitle");
 const readingKeywords = document.getElementById("readingKeywords");
+const aiNote = document.getElementById("aiNote");
 const careerText = document.getElementById("careerText");
 const loveText = document.getElementById("loveText");
 const studyText = document.getElementById("studyText");
@@ -44,6 +45,7 @@ const CARD_BACK_SRC = "assets/fate-tarot-card.png";
 const SPREAD_GAP = 64;
 const COMMONS_CARD_BASE = "https://commons.wikimedia.org/wiki/Special:Redirect/file/";
 const HISTORY_KEY = "arcanaReadingHistory";
+const AI_READING_ENABLED = false;
 
 const majorArcana = [
   ["fool", "0", "愚者", "THE FOOL", "△"], ["magician", "I", "魔术师", "THE MAGICIAN", "∞"],
@@ -129,7 +131,8 @@ const i18n = {
     gestureHover: "靠近牌背聚焦",
     gesturePalm: "张开五指确认",
     holdPalm: "保持五指张开",
-    readingEyebrow: "AI READING",
+    readingEyebrow: "基础解读",
+    aiUnavailableNotice: "AI 深度解读暂未开通，当前展示基础牌义解读。",
     waiting: "等待抽牌",
     analysisLabels: ["事业", "感情", "学业", "建议"],
     emptyAnalysis: ["请先提出问题，并通过手势从牌组中抽牌。", "牌组会根据你的选择展开对应的命运线索。", "完整牌组模式会抽取三张牌，形成更完整的结构。", "食指选择，张掌确认。不要点击牌面。"],
@@ -177,7 +180,7 @@ const i18n = {
     historyEmpty: "还没有历史记录。完成一次抽牌后，它会出现在这里。",
     posterWaiting: "等待抽牌",
     posterQuestion: "问题",
-    posterSummary: "AI 总结",
+    posterSummary: "解读摘要",
     saved: "已保存",
   },
   en: {
@@ -202,7 +205,8 @@ const i18n = {
     gestureHover: "Approach the card back",
     gesturePalm: "Open palm to confirm",
     holdPalm: "Hold your palm open",
-    readingEyebrow: "AI READING",
+    readingEyebrow: "Basic Reading",
+    aiUnavailableNotice: "AI deep reading is not available yet. This section currently shows the foundational card reading.",
     waiting: "Waiting for the draw",
     analysisLabels: ["Career", "Love", "Study", "Advice"],
     emptyAnalysis: ["Ask a question first, then draw from the deck with gestures.", "The deck will unfold fate signals from your selection.", "The full deck mode draws three cards for a fuller structure.", "Point to choose, open your palm to confirm. Do not click the cards."],
@@ -250,7 +254,7 @@ const i18n = {
     historyEmpty: "No history yet. Finish a reading and it will appear here.",
     posterWaiting: "Waiting for the draw",
     posterQuestion: "Question",
-    posterSummary: "AI Summary",
+    posterSummary: "Reading Summary",
     saved: "Saved",
   },
   ja: {
@@ -275,7 +279,8 @@ const i18n = {
     gestureHover: "カード裏面に近づく",
     gesturePalm: "手のひらで確定",
     holdPalm: "手のひらを開いたまま",
-    readingEyebrow: "AI READING",
+    readingEyebrow: "基本リーディング",
+    aiUnavailableNotice: "AIによる深いリーディングはまだ未開通です。現在は基本的なカード解釈を表示しています。",
     waiting: "カード待機中",
     analysisLabels: ["仕事", "恋愛", "学び", "助言"],
     emptyAnalysis: ["まず問いを入力し、ジェスチャーでデッキからカードを引いてください。", "選ばれたカードから運命の手がかりが展開されます。", "フルデッキでは3枚を引き、より完全な構造を作ります。", "指で選び、手のひらで確定。カードはクリックしません。"],
@@ -323,7 +328,7 @@ const i18n = {
     historyEmpty: "履歴はまだありません。リーディング完了後ここに表示されます。",
     posterWaiting: "カード待機中",
     posterQuestion: "問い",
-    posterSummary: "AI要約",
+    posterSummary: "リーディング要約",
     saved: "保存しました",
   },
 };
@@ -940,6 +945,9 @@ function updateReading() {
   const signature = readingSignature();
   if (signature === lastReadingSignature) return;
   lastReadingSignature = signature;
+  drawPoster();
+  saveCurrentReading("basic");
+  if (!AI_READING_ENABLED) return;
   requestAiReading(signature);
 }
 
@@ -1034,6 +1042,7 @@ function applyLanguage(nextLang) {
   gestureSteps.forEach((step, index) => { step.querySelector("p").textContent = gestureTexts[index]; });
   document.getElementById("destinyLabel").textContent = t("holdPalm");
   document.querySelector(".reading .eyebrow").textContent = t("readingEyebrow");
+  aiNote.textContent = t("aiUnavailableNotice");
 
   renderModeText();
   if (pickedCards.length) {

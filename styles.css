@@ -189,6 +189,7 @@ h1 { font-size: clamp(4.9rem, 16vw, 17rem); }
 .reading-card-face img { width:100%; height:100%; display:block; object-fit:cover; }
 .reading-hero h2 { max-width:980px; font-size:clamp(2.1rem,5.8vw,6.8rem); line-height:1.02; letter-spacing:.03em; }
 .keywords { display:flex; flex-wrap:wrap; gap:16px 32px; color:rgba(247,242,232,.64); font-size:clamp(1.05rem,2vw,1.55rem); font-weight:300; }
+.ai-note { max-width:620px; margin:0; padding:12px 18px; border:1px solid rgba(216,181,106,.18); border-radius:999px; color:rgba(247,242,232,.52); background:rgba(5,5,5,.22); box-shadow:0 0 30px rgba(216,181,106,.06); font-size:clamp(.82rem,1.5vw,.98rem); line-height:1.5; }
 .analysis { display:grid; gap:clamp(80px,10vw,140px); max-width:980px; margin-left:auto; padding-bottom:120px; }
 .analysis article { opacity:0; transform:translateY(42px); transition:opacity .9s ease, transform .9s ease; }
 .analysis article.is-visible { opacity:1; transform:translateY(0); }
